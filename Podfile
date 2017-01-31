@@ -7,4 +7,5 @@ target 'MovieViewer' do
 
   # Pods for MovieViewer
   pod 'AFNetworking', '~> 3.0'
+  pod 'MBProgressHUD'
 end
