@@ -10,24 +10,22 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MovieViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var collectionView: UICollectionView!
     
     var movies: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.dataSource = self
-        tableView.delegate = self
-        
-        tableView.estimatedRowHeight = 118
+        collectionView.dataSource = self
+        collectionView.delegate = self
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: .valueChanged)
-        tableView.insertSubview(refreshControl, at: 0)
+        collectionView.insertSubview(refreshControl, at: 0)
         
         // Display HUD right before the request is made
         MBProgressHUD.showAdded(to: self.view, animated: true)
@@ -35,37 +33,29 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
         refreshControlAction(refreshControl)
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
         
         let movie = movies![indexPath.row]
-        let title = movie["title"] as! String
-        let overview = movie["overview"] as! String
         let posterPath = movie["poster_path"] as! String
         
         let baseUrl = "https://image.tmdb.org/t/p/w500"
         let imageUrl = URL(string: baseUrl + posterPath)
         
-        cell.titleLabel.text = title
-        cell.overviewLabel.text = overview
         cell.posterView.setImageWith(imageUrl!)
         
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 118
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let movies = movies {
             return movies.count
         } else {
             return 0
         }
     }
-
+    
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
@@ -81,11 +71,23 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
                     MBProgressHUD.hide(for: self.view, animated: true)
                     
                     self.movies = dataDictionary["results"] as? [NSDictionary]
-                    self.tableView.reloadData()
+                    self.collectionView.reloadData()
                     
                     // Tell the refreshControl to stop spinning
                     refreshControl.endRefreshing()
                 }
+                
+            } else if let error = error {
+                // Hide HUD once the network request comes back (must be done on main UI thread)
+                MBProgressHUD.hide(for: self.view, animated: true)
+                
+                let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                
+                let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                alert.addAction(okAction)
+                
+                self.show(alert, sender: nil)
+                
             }
         }
         task.resume()
