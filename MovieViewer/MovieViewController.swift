@@ -10,15 +10,19 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MovieViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
+    @IBOutlet weak var movieSearchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    var filteredMovies: [NSDictionary]?
     var movies: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        movieSearchBar.delegate = self
+        
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -33,12 +37,28 @@ class MovieViewController: UIViewController, UICollectionViewDataSource, UIColle
         refreshControlAction(refreshControl)
     }
     
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            filteredMovies = movies
+        } else {
+            filteredMovies = movies!.filter { element -> Bool in
+                if let title = element["title"] as? String {
+                    if title.range(of: searchText, options: .caseInsensitive) != nil {
+                        return true
+                    }
+                }
+                return false
+            }
+        }
+        collectionView.reloadData()
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
         
-        let movie = movies![indexPath.row]
-        let posterPath = movie["poster_path"] as! String
+        let filteredMovie = filteredMovies![indexPath.row]
+        let posterPath = filteredMovie["poster_path"] as! String
         
         let baseUrl = "https://image.tmdb.org/t/p/w500"
         let imageUrl = URL(string: baseUrl + posterPath)
@@ -49,8 +69,8 @@ class MovieViewController: UIViewController, UICollectionViewDataSource, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let movies = movies {
-            return movies.count
+        if let filteredMovies = filteredMovies {
+            return filteredMovies.count
         } else {
             return 0
         }
@@ -71,6 +91,7 @@ class MovieViewController: UIViewController, UICollectionViewDataSource, UIColle
                     MBProgressHUD.hide(for: self.view, animated: true)
                     
                     self.movies = dataDictionary["results"] as? [NSDictionary]
+                    self.filteredMovies = self.movies
                     self.collectionView.reloadData()
                     
                     // Tell the refreshControl to stop spinning
