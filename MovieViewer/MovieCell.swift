@@ -14,6 +14,9 @@ class MovieCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+//        self.contentView.autoresizingMask.insert(.flexibleHeight)
+//        self.contentView.autoresizingMask.insert(.flexibleWidth)
+//        self.contentView.translatesAutoresizingMaskIntoConstraints = true
     }
 }

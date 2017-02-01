@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
+class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 
     @IBOutlet weak var movieSearchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -25,6 +25,19 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
         
         collectionView.dataSource = self
         collectionView.delegate = self
+        
+        collectionView.collectionViewLayout = {
+            let layout = UICollectionViewFlowLayout()
+            layout.sectionInset = UIEdgeInsets(
+                top: D.CollectionView.Cell.Spacing.top,
+                left: D.CollectionView.Cell.Spacing.left,
+                bottom: D.CollectionView.Cell.Spacing.bottom,
+                right: D.CollectionView.Cell.Spacing.right)
+            layout.itemSize = CGSize(
+                width: D.Screen.width / D.CollectionView.numberOfCellPerRow - D.CollectionView.Cell.Spacing.left - D.CollectionView.Cell.Spacing.right,
+                height: D.Screen.width / D.CollectionView.numberOfCellPerRow - D.CollectionView.Cell.Spacing.top - D.CollectionView.Cell.Spacing.bottom)
+            return layout
+        }()
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -41,7 +54,11 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
         if searchText.isEmpty {
             filteredMovies = movies
         } else {
-            filteredMovies = movies!.filter { element -> Bool in
+            guard let movies = movies else {
+                fatalError(S.ErrorMessage.resourceNotAccessible)
+            }
+            
+            filteredMovies = movies.filter { element -> Bool in
                 if let title = element["title"] as? String {
                     if title.range(of: searchText, options: .caseInsensitive) != nil {
                         return true
@@ -55,47 +72,82 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: C.CollectionView.Cell.reuseIdentifier, for: indexPath) as? MovieCell {
+            
+            guard let filteredMovies = filteredMovies else {
+                fatalError(S.ErrorMessage.resourceNotAccessible)
+            }
+            
+            let filteredMovie = filteredMovies[indexPath.row]
+            
+            guard let posterPath = filteredMovie[C.Movie.JSONKey.posterPath] as? String else {
+                fatalError(S.ErrorMessage.incorrectJSONKey)
+            }
+            
+            
+            guard let imageUrl = URL(string: C.Movie.posterBaseUrl + posterPath) else {
+                fatalError(S.ErrorMessage.invalidURL)
+            }
+            
+            cell.posterView.setImageWith(
+                URLRequest(url: imageUrl),
+                placeholderImage: nil,
+                success: { (imageRequest, imageResponse, image) -> Void in
+                    
+                    // imageResponse will be nil if the image is cached
+                    if imageResponse != nil {
+                        
+                        cell.posterView.alpha = 0.0
+                        cell.posterView.image = image
+                        
+                        UIView.animate(withDuration: 0.3, animations: { () -> Void in
+                            cell.posterView.alpha = 1.0
+                        })
+                    } else {
+                        cell.posterView.image = image
+                    }
+            },
+                failure: { (imageRequest, imageResponse, error) -> Void in
+                    // do something for the failure condition
+            })
+            
+            return cell
+        }
         
-        let filteredMovie = filteredMovies![indexPath.row]
-        let posterPath = filteredMovie["poster_path"] as! String
-        
-        let baseUrl = "https://image.tmdb.org/t/p/w500"
-        let imageUrl = URL(string: baseUrl + posterPath)
-        
-        cell.posterView.setImageWith(imageUrl!)
-        
-        return cell
+        return UICollectionViewCell()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let filteredMovies = filteredMovies {
-            return filteredMovies.count
-        } else {
-            return 0
-        }
+        return filteredMovies?.count ?? 0
     }
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
+        guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)") else {
+            fatalError(S.ErrorMessage.invalidURL)
+        }
+        
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             if let data = data {
-                if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    print(dataDictionary)
-                    
-                    // Hide HUD once the network request comes back (must be done on main UI thread)
-                    MBProgressHUD.hide(for: self.view, animated: true)
-                    
-                    self.movies = dataDictionary["results"] as? [NSDictionary]
-                    self.filteredMovies = self.movies
-                    self.collectionView.reloadData()
-                    
-                    // Tell the refreshControl to stop spinning
-                    refreshControl.endRefreshing()
+                do {
+                    if let dataDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject] {
+                        print(dataDictionary)
+                        
+                        // Hide HUD once the network request comes back (must be done on main UI thread)
+                        MBProgressHUD.hide(for: self.view, animated: true)
+                        
+                        self.movies = dataDictionary[C.Movie.JSONKey.results] as? [NSDictionary]
+                        self.filteredMovies = self.movies
+                        self.collectionView.reloadData()
+                        
+                        // Tell the refreshControl to stop spinning
+                        refreshControl.endRefreshing()
+                    }
+                } catch _ {
+                    fatalError(S.ErrorMessage.unrecognizedDataFormat)
                 }
                 
             } else if let error = error {
