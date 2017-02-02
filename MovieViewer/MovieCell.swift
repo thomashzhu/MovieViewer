@@ -9,14 +9,5 @@
 import UIKit
 
 class MovieCell: UICollectionViewCell {
-    
     @IBOutlet weak var posterView: UIImageView!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-//        self.contentView.autoresizingMask.insert(.flexibleHeight)
-//        self.contentView.autoresizingMask.insert(.flexibleWidth)
-//        self.contentView.translatesAutoresizingMaskIntoConstraints = true
-    }
 }

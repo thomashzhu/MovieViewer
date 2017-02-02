@@ -7,7 +7,6 @@
 //
 
 struct S {
-    
     struct ErrorMessage {
         static let incorrectJSONKey = "Unknown data structure"
         static let invalidURL = "Invalid destination URL"

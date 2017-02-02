@@ -20,9 +20,8 @@ struct C {
         
         static let JSONKey = (
             posterPath: "poster_path",
-            results: "results"
+            results: "results",
+            title: "title"
         )
-        
-        
     }
 }

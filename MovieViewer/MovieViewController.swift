@@ -59,7 +59,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             }
             
             filteredMovies = movies.filter { element -> Bool in
-                if let title = element["title"] as? String {
+                if let title = element[C.Movie.JSONKey.title] as? String {
                     if title.range(of: searchText, options: .caseInsensitive) != nil {
                         return true
                     }
