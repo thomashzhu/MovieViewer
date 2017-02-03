@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,6 +22,42 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wCn-RY-y1x" userLabel="Network Error Message">
+                                <rect key="frame" x="0.0" y="64" width="375" height="30"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="mOB-gu-18x">
+                                        <rect key="frame" x="127" y="5" width="122" height="20"/>
+                                        <subviews>
+                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="warning" translatesAutoresizingMaskIntoConstraints="NO" id="7KZ-KG-45R">
+                                                <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="7KZ-KG-45R" secondAttribute="height" multiplier="1:1" id="UX9-Qa-xjw"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Network Error" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6MO-rq-HvS">
+                                                <rect key="frame" x="28" y="0.0" width="94" height="20"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="15"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="7KZ-KG-45R" firstAttribute="height" secondItem="6MO-rq-HvS" secondAttribute="height" id="GgJ-jA-VJU"/>
+                                            <constraint firstAttribute="height" constant="20" id="V1z-Uv-UIa"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstItem="mOB-gu-18x" firstAttribute="centerY" secondItem="wCn-RY-y1x" secondAttribute="centerY" id="54s-Ir-geQ"/>
+                                    <constraint firstItem="mOB-gu-18x" firstAttribute="centerX" secondItem="wCn-RY-y1x" secondAttribute="centerX" id="7NT-Mo-NAp"/>
+                                    <constraint firstAttribute="height" constant="30" id="fS1-6Q-Q5S"/>
+                                </constraints>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="2Uk-qk-BgF" appends="YES" id="tWA-dR-XlX"/>
+                                </connections>
+                            </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="SXg-8m-c4A">
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -63,25 +100,37 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="65T-c6-Cxl" firstAttribute="top" secondItem="7xI-kX-9F1" secondAttribute="bottom" id="AbZ-AY-314"/>
+                            <constraint firstItem="wCn-RY-y1x" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="BjR-cd-w5o"/>
                             <constraint firstItem="SXg-8m-c4A" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="EuI-QV-6cR"/>
-                            <constraint firstItem="SXg-8m-c4A" firstAttribute="top" secondItem="65T-c6-Cxl" secondAttribute="bottom" id="Vh7-2M-UEc"/>
+                            <constraint firstAttribute="trailing" secondItem="wCn-RY-y1x" secondAttribute="trailing" id="NL6-Sp-jae"/>
+                            <constraint firstItem="SXg-8m-c4A" firstAttribute="top" secondItem="65T-c6-Cxl" secondAttribute="bottom" id="UfL-hB-iOu"/>
+                            <constraint firstItem="wCn-RY-y1x" firstAttribute="top" secondItem="65T-c6-Cxl" secondAttribute="bottom" id="W0a-0l-dgZ"/>
                             <constraint firstAttribute="trailing" secondItem="65T-c6-Cxl" secondAttribute="trailing" id="YtX-9a-3aO"/>
                             <constraint firstItem="Kb1-qr-eIL" firstAttribute="top" secondItem="SXg-8m-c4A" secondAttribute="bottom" id="hC7-t7-mNU"/>
                             <constraint firstAttribute="trailing" secondItem="SXg-8m-c4A" secondAttribute="trailing" id="jsA-bv-whk"/>
-                            <constraint firstItem="SXg-8m-c4A" firstAttribute="top" secondItem="65T-c6-Cxl" secondAttribute="bottom" id="nOQ-9K-ONS"/>
                             <constraint firstItem="65T-c6-Cxl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="vct-lM-No9"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="SXg-8m-c4A" id="Gvz-e3-aiH"/>
                         <outlet property="movieSearchBar" destination="65T-c6-Cxl" id="mNb-2R-jot"/>
+                        <outlet property="networkErrorMsgConstraint" destination="UfL-hB-iOu" id="fIa-Mz-Kcg"/>
+                        <outlet property="networkErrorMsgView" destination="wCn-RY-y1x" id="jDm-Ov-0am"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="2Uk-qk-BgF">
+                    <connections>
+                        <action selector="networkErrorMsgTapped:" destination="BYZ-38-t0r" id="QBT-sg-3rk"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="85.5" y="154.5"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="warning" width="240" height="240"/>
+    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

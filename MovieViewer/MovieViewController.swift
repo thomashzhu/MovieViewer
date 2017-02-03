@@ -13,7 +13,10 @@ import MBProgressHUD
 class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 
     @IBOutlet weak var movieSearchBar: UISearchBar!
+    @IBOutlet weak var networkErrorMsgView: UIView!
     @IBOutlet weak var collectionView: UICollectionView!
+    
+    @IBOutlet weak var networkErrorMsgConstraint: NSLayoutConstraint!
     
     var filteredMovies: [NSDictionary]?
     var movies: [NSDictionary]?
@@ -22,6 +25,8 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
         super.viewDidLoad()
 
         movieSearchBar.delegate = self
+        
+        networkErrorMsgView.isHidden = true
         
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -68,6 +73,15 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             }
         }
         collectionView.reloadData()
+    }
+    
+    @IBAction func networkErrorMsgTapped(_ sender: Any) {
+        
+        self.networkErrorMsgConstraint.constant = 0
+        self.networkErrorMsgView.isHidden = true
+        
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        refreshControlAction()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -121,7 +135,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
         return filteredMovies?.count ?? 0
     }
     
-    func refreshControlAction(_ refreshControl: UIRefreshControl) {
+    func refreshControlAction(_ refreshControl: UIRefreshControl? = nil) {
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)") else {
@@ -134,7 +148,8 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             if let data = data {
                 do {
                     if let dataDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject] {
-                        print(dataDictionary)
+                        self.networkErrorMsgConstraint.constant = 0
+                        self.networkErrorMsgView.isHidden = true
                         
                         // Hide HUD once the network request comes back (must be done on main UI thread)
                         MBProgressHUD.hide(for: self.view, animated: true)
@@ -144,22 +159,20 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
                         self.collectionView.reloadData()
                         
                         // Tell the refreshControl to stop spinning
-                        refreshControl.endRefreshing()
+                        refreshControl?.endRefreshing()
                     }
                 } catch _ {
                     fatalError(S.ErrorMessage.unrecognizedDataFormat)
                 }
                 
-            } else if let error = error {
+            } else {
                 // Hide HUD once the network request comes back (must be done on main UI thread)
                 MBProgressHUD.hide(for: self.view, animated: true)
                 
-                let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                self.networkErrorMsgConstraint.constant = 30
+                self.networkErrorMsgView.isHidden = false
                 
-                let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                alert.addAction(okAction)
-                
-                self.show(alert, sender: nil)
+                refreshControl?.endRefreshing()
                 
             }
         }
