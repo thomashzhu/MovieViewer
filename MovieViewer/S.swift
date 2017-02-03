@@ -10,6 +10,7 @@ struct S {
     struct ErrorMessage {
         static let incorrectJSONKey = "Unknown data structure"
         static let invalidURL = "Invalid destination URL"
+        static let movieNotLoaded = "Movie cannot be loaded"
         static let resourceNotAccessible = "Resource not accessible"
         static let unrecognizedDataFormat = "Incoming data error"
     }

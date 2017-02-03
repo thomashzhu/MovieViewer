@@ -98,7 +98,6 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
                 fatalError(S.ErrorMessage.incorrectJSONKey)
             }
             
-            
             guard let imageUrl = URL(string: C.Movie.posterBaseUrl + posterPath) else {
                 fatalError(S.ErrorMessage.invalidURL)
             }
@@ -177,5 +176,20 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             }
         }
         task.resume()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if let detailViewController = segue.destination as? DetailViewController {
+            
+            guard let movies = movies,
+                let cell = sender as? MovieCell,
+                let indexPath = collectionView.indexPath(for: cell) else {
+                fatalError(S.ErrorMessage.movieNotLoaded)
+            }
+            
+            let movie = movies[indexPath.row]
+            detailViewController.movie = movie
+        }
     }
 }

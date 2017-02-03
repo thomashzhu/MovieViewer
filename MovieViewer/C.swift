@@ -19,6 +19,7 @@ struct C {
         static let posterBaseUrl = "https://image.tmdb.org/t/p/w500"
         
         static let JSONKey = (
+            overview: "overview",
             posterPath: "poster_path",
             results: "results",
             title: "title"
