@@ -14,15 +14,28 @@ struct C {
         }
     }
     
-    struct Movie {
+    struct Resource {
+        struct Image {
+            static let nowPlaying = "now_playing"
+            static let topRated = "top_rated"
+        }
+    }
+    
+    struct Storyboard {
         
-        static let posterBaseUrl = "https://image.tmdb.org/t/p/w500"
+        struct Name {
+            static let main = "Main"
+        }
         
-        static let JSONKey = (
-            overview: "overview",
-            posterPath: "poster_path",
-            results: "results",
-            title: "title"
-        )
+        struct VC {
+            struct Identifier {
+                static let movieVC = "MovieViewController"
+            }
+        }
+    }
+    
+    struct TabIndex {
+        static let NowPlaying = 0
+        static let TopRated = 1
     }
 }

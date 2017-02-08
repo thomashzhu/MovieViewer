@@ -18,6 +18,12 @@
 		6551C3CA1E410734009E9A35 /* D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551C3C91E410734009E9A35 /* D.swift */; };
 		6551C3CC1E410A56009E9A35 /* C.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551C3CB1E410A56009E9A35 /* C.swift */; };
 		6551C3CE1E410E37009E9A35 /* S.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551C3CD1E410E37009E9A35 /* S.swift */; };
+		65529F2B1E4A454200690E7C /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65529F2A1E4A454200690E7C /* UIViewControllerExtension.swift */; };
+		6575A2251E497B0D00AA0D08 /* MainTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575A2241E497B0D00AA0D08 /* MainTabController.swift */; };
+		6575A2271E49C17200AA0D08 /* N.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575A2261E49C17200AA0D08 /* N.swift */; };
+		65BACF871E4A78EC0067D611 /* TopAlignedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BACF861E4A78EC0067D611 /* TopAlignedLabel.swift */; };
+		65BACF891E4AB6950067D611 /* F.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BACF881E4AB6950067D611 /* F.swift */; };
+		65BACF8D1E4AB9980067D611 /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BACF8C1E4AB9980067D611 /* UIColorExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +41,12 @@
 		6551C3C91E410734009E9A35 /* D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = D.swift; sourceTree = "<group>"; };
 		6551C3CB1E410A56009E9A35 /* C.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C.swift; sourceTree = "<group>"; };
 		6551C3CD1E410E37009E9A35 /* S.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = S.swift; sourceTree = "<group>"; };
+		65529F2A1E4A454200690E7C /* UIViewControllerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtension.swift; sourceTree = "<group>"; };
+		6575A2241E497B0D00AA0D08 /* MainTabController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabController.swift; sourceTree = "<group>"; };
+		6575A2261E49C17200AA0D08 /* N.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = N.swift; sourceTree = "<group>"; };
+		65BACF861E4A78EC0067D611 /* TopAlignedLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopAlignedLabel.swift; sourceTree = "<group>"; };
+		65BACF881E4AB6950067D611 /* F.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = F.swift; sourceTree = "<group>"; };
+		65BACF8C1E4AB9980067D611 /* UIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		73839A638ADE5735F07BDAA1 /* Pods_MovieViewer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MovieViewer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -84,6 +96,7 @@
 				6551C3C51E4106E1009E9A35 /* Models */,
 				6539C42D1E3D8C4D0025D161 /* Views */,
 				6551C3C71E410704009E9A35 /* Resources */,
+				65529F281E4A452100690E7C /* Utilities */,
 				6551C3C81E410719009E9A35 /* Values */,
 				6539C4191E3D3E630025D161 /* AppDelegate.swift */,
 				6539C4251E3D3E630025D161 /* Info.plist */,
@@ -103,6 +116,7 @@
 		6539C4301E3D8C780025D161 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				6575A2241E497B0D00AA0D08 /* MainTabController.swift */,
 				6539C42B1E3D3ED40025D161 /* MovieViewController.swift */,
 				65261AA51E44E01200B069DA /* DetailViewController.swift */,
 			);
@@ -138,9 +152,37 @@
 			children = (
 				6551C3CB1E410A56009E9A35 /* C.swift */,
 				6551C3C91E410734009E9A35 /* D.swift */,
+				65BACF881E4AB6950067D611 /* F.swift */,
 				6551C3CD1E410E37009E9A35 /* S.swift */,
+				6575A2261E49C17200AA0D08 /* N.swift */,
 			);
 			name = Values;
+			sourceTree = "<group>";
+		};
+		65529F281E4A452100690E7C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				65529F291E4A452D00690E7C /* Extensions */,
+				65BACF851E4A78AE0067D611 /* Usesable Classes */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
+		65529F291E4A452D00690E7C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				65BACF8C1E4AB9980067D611 /* UIColorExtension.swift */,
+				65529F2A1E4A454200690E7C /* UIViewControllerExtension.swift */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
+		65BACF851E4A78AE0067D611 /* Usesable Classes */ = {
+			isa = PBXGroup;
+			children = (
+				65BACF861E4A78EC0067D611 /* TopAlignedLabel.swift */,
+			);
+			name = "Usesable Classes";
 			sourceTree = "<group>";
 		};
 		D5423B7A2AB757239176B47A /* Frameworks */ = {
@@ -275,8 +317,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65BACF891E4AB6950067D611 /* F.swift in Sources */,
+				6575A2271E49C17200AA0D08 /* N.swift in Sources */,
 				6539C41A1E3D3E630025D161 /* AppDelegate.swift in Sources */,
+				65BACF871E4A78EC0067D611 /* TopAlignedLabel.swift in Sources */,
+				65529F2B1E4A454200690E7C /* UIViewControllerExtension.swift in Sources */,
 				6539C42C1E3D3ED40025D161 /* MovieViewController.swift in Sources */,
+				65BACF8D1E4AB9980067D611 /* UIColorExtension.swift in Sources */,
+				6575A2251E497B0D00AA0D08 /* MainTabController.swift in Sources */,
 				6551C3CA1E410734009E9A35 /* D.swift in Sources */,
 				6551C3CE1E410E37009E9A35 /* S.swift in Sources */,
 				6551C3CC1E410A56009E9A35 /* C.swift in Sources */,

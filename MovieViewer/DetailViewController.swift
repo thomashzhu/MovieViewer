@@ -11,8 +11,17 @@ import UIKit
 class DetailViewController: UIViewController {
 
     @IBOutlet weak var posterImageView: UIImageView!
+    
+    @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet weak var infoView: UIStackView!
+    
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var overviewLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var ratingLabel: UILabel!
+    @IBOutlet weak var runtimeLabel: UILabel!
+    @IBOutlet weak var overviewTextView: TopAlignedLabel!
+    
+    @IBOutlet weak var infoViewOffsetConstraint: NSLayoutConstraint!
     
     var movie: NSDictionary!
     
@@ -20,36 +29,55 @@ class DetailViewController: UIViewController {
         
         super.viewDidLoad()
 
-        if let title = movie[C.Movie.JSONKey.title] as? String {
-            titleLabel.text = title
+        navigationController?.navigationBar.tintColor = UIColor.white
+        
+        scrollView.contentSize = CGSize(width: posterImageView.bounds.size.width * 0.9,
+                                        height: posterImageView.bounds.size.height * 0.5)
+        
+        infoView.layoutMargins = UIEdgeInsets(top: D.horizontalMargin, left: D.verticalMargin, bottom: D.horizontalMargin, right: D.verticalMargin)
+        infoView.isLayoutMarginsRelativeArrangement = true
+        infoViewOffsetConstraint.constant = D.DetailViewController.topOffset
+        
+        titleLabel.text = (movie[N.TMDB.Movie.JSONKey.title] as? String) ?? ""
+        dateLabel.text = (movie[N.TMDB.Movie.JSONKey.releaseDate] as? String) ?? ""
+        if let rating = movie[N.TMDB.Movie.JSONKey.rating] as? Double {
+            ratingLabel.text = "\(rating)"
+        } else {
+            ratingLabel.text = ""
+        }
+        overviewTextView.text = (movie[N.TMDB.Movie.JSONKey.overview] as? String) ?? ""
+        
+        if let posterPath = movie[N.TMDB.Movie.JSONKey.posterPath] as? String,
+           let imageUrl = URL(string: N.TMDB.Movie.ImageURL.highResolution + posterPath) {
+            posterImageView.setImageWith(imageUrl)
         }
         
-        if let overview = movie[C.Movie.JSONKey.overview] as? String {
-            overviewLabel.text = overview
-        }
-        
-        guard let posterPath = movie[C.Movie.JSONKey.posterPath] as? String else {
-            fatalError(S.ErrorMessage.incorrectJSONKey)
-        }
-        guard let imageUrl = URL(string: C.Movie.posterBaseUrl + posterPath) else {
-            fatalError(S.ErrorMessage.invalidURL)
-        }
-        posterImageView.setImageWith(imageUrl)
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        runtimeLabel.text = N.loadingText
+        loadMovieRunTime()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    private func loadMovieRunTime() {
+        
+        if let id = movie[N.TMDB.Movie.JSONKey.id] as? Int, let url = URL(string: N.TMDB.URL(id: id)) {
+            
+            let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+            let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
+            let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
+                if let data = data {
+                    do {
+                        if let dataDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject] {
+                            if let runtime = dataDictionary[N.TMDB.Movie.JSONKey.runtime] as? Int {
+                                self.runtimeLabel.text = "\(runtime) minutes"
+                            } else {
+                                self.runtimeLabel.text = ""
+                            }
+                        }
+                    } catch _ {
+                        fatalError(S.ErrorMessage.unrecognizedDataFormat)
+                    }
+                }
+            }
+            task.resume()
+        }
     }
-    */
 }

@@ -11,20 +11,61 @@ import AFNetworking
 import MBProgressHUD
 
 class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-
+    
     @IBOutlet weak var movieSearchBar: UISearchBar!
     @IBOutlet weak var networkErrorMsgView: UIView!
     @IBOutlet weak var collectionView: UICollectionView!
     
     @IBOutlet weak var networkErrorMsgConstraint: NSLayoutConstraint!
     
+    var endpoint: Endpoint?
+    
     var filteredMovies: [NSDictionary]?
     var movies: [NSDictionary]?
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
 
+        navigationController?.navigationBar.barTintColor = F.Theme.Color.red
+        
+        navigationItem.titleView = {
+            
+            let titleLabel = UILabel();
+            
+            let shadow: NSShadow = {
+                let shadow = NSShadow()
+                shadow.shadowColor = UIColor.white.withAlphaComponent(0.2)
+                shadow.shadowOffset = CGSize(width: 2, height: 2)
+                shadow.shadowBlurRadius = 4
+                return shadow
+            }()
+            
+            let titleText = NSAttributedString(
+                string: (tabBarController?.selectedViewController?.tabBarItem.title ?? "Movies"),
+                attributes: [
+                    NSFontAttributeName: UIFont(name: F.Theme.Font.avenirBook, size: 24) ?? UIFont.boldSystemFont(ofSize: 24),
+                    NSForegroundColorAttributeName: UIColor.white,
+                    NSShadowAttributeName: shadow
+            ])
+            
+            titleLabel.attributedText = titleText
+            titleLabel.sizeToFit()
+            
+            return titleLabel
+        }()
+        
         movieSearchBar.delegate = self
+        
+        let movieSearchBarTextField = movieSearchBar.value(forKey: "searchField") as? UITextField
+        movieSearchBarTextField?.layer.borderColor = F.Theme.Color.red.withAlphaComponent(0.75).cgColor
+        movieSearchBarTextField?.layer.borderWidth = 1.5
+        movieSearchBarTextField?.layer.cornerRadius = 8.0
+        movieSearchBarTextField?.clipsToBounds = true
+        movieSearchBarTextField?.textColor = F.Theme.Color.red
+        
+        movieSearchBar.barTintColor = UIColor.white
+        movieSearchBar.backgroundImage = UIImage()
         
         networkErrorMsgView.isHidden = true
         
@@ -64,7 +105,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             }
             
             filteredMovies = movies.filter { element -> Bool in
-                if let title = element[C.Movie.JSONKey.title] as? String {
+                if let title = element[N.TMDB.Movie.JSONKey.title] as? String {
                     if title.range(of: searchText, options: .caseInsensitive) != nil {
                         return true
                     }
@@ -94,35 +135,37 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             
             let filteredMovie = filteredMovies[indexPath.row]
             
-            guard let posterPath = filteredMovie[C.Movie.JSONKey.posterPath] as? String else {
+            guard let posterPath = filteredMovie[N.TMDB.Movie.JSONKey.posterPath] as? String else {
                 fatalError(S.ErrorMessage.incorrectJSONKey)
             }
             
-            guard let imageUrl = URL(string: C.Movie.posterBaseUrl + posterPath) else {
+            guard
+                let lowResolutionImageUrl = URL(string: N.TMDB.Movie.ImageURL.lowResolution + posterPath),
+                let highResolutionImageUrl = URL(string: N.TMDB.Movie.ImageURL.highResolution + posterPath)
+            else {
                 fatalError(S.ErrorMessage.invalidURL)
             }
             
             cell.posterView.setImageWith(
-                URLRequest(url: imageUrl),
+                URLRequest(url: lowResolutionImageUrl),
                 placeholderImage: nil,
-                success: { (imageRequest, imageResponse, image) -> Void in
+                success: { (request, response, lowResImg) in
+                    cell.posterView.alpha = 0.0
+                    cell.posterView.image = lowResImg;
                     
-                    // imageResponse will be nil if the image is cached
-                    if imageResponse != nil {
-                        
-                        cell.posterView.alpha = 0.0
-                        cell.posterView.image = image
-                        
-                        UIView.animate(withDuration: 0.3, animations: { () -> Void in
-                            cell.posterView.alpha = 1.0
-                        })
-                    } else {
-                        cell.posterView.image = image
-                    }
-            },
-                failure: { (imageRequest, imageResponse, error) -> Void in
-                    // do something for the failure condition
-            })
+                    UIView.animate(
+                        withDuration: 0.3,
+                        animations: { cell.posterView.alpha = 1.0 },
+                        completion: { _ in
+                            cell.posterView.setImageWith(
+                                URLRequest(url: highResolutionImageUrl),
+                                placeholderImage: lowResImg,
+                                success: { (largeImageRequest, largeImageResponse, highResImg) -> Void in
+                                    cell.posterView.image = highResImg;
+                            })
+                    })
+                }
+            )
             
             return cell
         }
@@ -136,8 +179,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
     
     func refreshControlAction(_ refreshControl: UIRefreshControl? = nil) {
         
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)") else {
+        guard let endpoint = endpoint, let url = URL(string: N.TMDB.URL(endPoint: endpoint)) else {
             fatalError(S.ErrorMessage.invalidURL)
         }
         
@@ -153,7 +195,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
                         // Hide HUD once the network request comes back (must be done on main UI thread)
                         MBProgressHUD.hide(for: self.view, animated: true)
                         
-                        self.movies = dataDictionary[C.Movie.JSONKey.results] as? [NSDictionary]
+                        self.movies = dataDictionary[N.TMDB.Movie.JSONKey.results] as? [NSDictionary]
                         self.filteredMovies = self.movies
                         self.collectionView.reloadData()
                         
@@ -168,7 +210,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
                 // Hide HUD once the network request comes back (must be done on main UI thread)
                 MBProgressHUD.hide(for: self.view, animated: true)
                 
-                self.networkErrorMsgConstraint.constant = 30
+                self.networkErrorMsgConstraint.constant = self.movieSearchBar.frame.size.height
                 self.networkErrorMsgView.isHidden = false
                 
                 refreshControl?.endRefreshing()
@@ -182,7 +224,7 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
         
         if let detailViewController = segue.destination as? DetailViewController {
             
-            guard let movies = movies,
+            guard let movies = filteredMovies,
                 let cell = sender as? MovieCell,
                 let indexPath = collectionView.indexPath(for: cell) else {
                 fatalError(S.ErrorMessage.movieNotLoaded)
@@ -190,6 +232,9 @@ class MovieViewController: UIViewController, UISearchBarDelegate, UICollectionVi
             
             let movie = movies[indexPath.row]
             detailViewController.movie = movie
+            
+            let backButtonText = (tabBarController?.selectedViewController?.tabBarItem.title ?? "Back")
+            navigationItem.backBarButtonItem = UIBarButtonItem(title: backButtonText, style: .plain, target: nil, action: nil)
         }
     }
 }
